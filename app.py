@@ -16,3 +16,8 @@ def saludar():
 @app.route("/chau")
 def despedir():
     return "<h2>Chau!</h2>"
+
+@app.route("/sumar/<int:n1>/<int:n2>")
+def suma(n1, n2):
+    suma = n1+n2
+    return F"<h2>{n1} más {n2} es igual a {suma}</h2>"
