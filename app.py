@@ -1,4 +1,5 @@
 from flask import Flask, url_for 
+import sqlite3
 
 app = Flask(__name__)
 
@@ -38,3 +39,29 @@ def main():
     <br>
     <a href= "{url_dado}">Tirar_dado</a>
     """
+
+db=None
+def abrirConexion():
+    db = sqlite3.connect("instance/datos.sqlite")
+    db.row_factory = sqlite3.Row
+    return db
+
+
+def cerrarConexion():
+    global db
+    db=abrirConexion()
+    db=None
+@app.route("/usuarios/")
+def obterGente():
+    global db
+    conexion = abrirConexion()
+    cursor = conexion.cursor()
+    cursor.execute('SELECT * FROM usuarios')
+    resultado = cursor.fetchall()
+    cerrarConexion()
+    fila = [dict(row) for row in resultado]
+    return str(fila)
+
+
+
+
