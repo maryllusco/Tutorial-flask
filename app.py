@@ -40,28 +40,71 @@ def main():
     <a href= "{url_dado}">Tirar_dado</a>
     """
 
-db=None
+db = None
+
+
+def dict_factory(cursor, row):
+  """Arma un diccionario con los valores de la fila."""
+  fields = [column[0] for column in cursor.description]
+  return {key: value for key, value in zip(fields, row)}
+
+
 def abrirConexion():
-    db = sqlite3.connect("instance/datos.sqlite")
-    db.row_factory = sqlite3.Row
-    return db
+   global db
+   db = sqlite3.connect("instance/datos.sqlite")
+   db.row_factory = dict_factory
 
 
 def cerrarConexion():
-    global db
-    db=abrirConexion()
-    db=None
-@app.route("/usuarios/")
-def obterGente():
-    global db
-    conexion = abrirConexion()
-    cursor = conexion.cursor()
-    cursor.execute('SELECT * FROM usuarios')
-    resultado = cursor.fetchall()
-    cerrarConexion()
-    fila = [dict(row) for row in resultado]
-    return str(fila)
+   global db
+   db.close()
+   db = None
 
+@app.route("/test-db")
+def testDB():
+   abrirConexion()
+   cursor = db.cursor()
+   cursor.execute("SELECT COUNT(*) AS cant FROM usuarios; ")
+   res = cursor.fetchone()
+   registros = res["cant"]
+   cerrarConexion()
+   return f"Hay {registros} registros en la tabla usuarios"
 
+#ruta para borrar un id 
+@app.route("/borrar/<int:id>")
+def borrar (id):
+   abrirConexion()
+   db.execute("DELETE FROM usuarios WHERE id=2" , (usr,))
+   db.commit()
+   cerrarConexion()
+
+#ruta para insertar un usuario y email
+@app.route("/insertar/<string:usuario>/<string:email>")
+def insertar (usuario,email):
+   abrirConexion()
+   db.execute("INSERT INTO usuarios (usuario,email) VALUES (?, ?);", (usuario,email))
+   db.commit()
+   cerrarConexion()
+
+#ruta para mostrar nombre,email del usuario
+@app.route("/mostrar/<int:id>")
+def mostrar(id):
+   abrirConexion() #abre la conexion con la base de datos 
+   cursor = db.cursor()
+   cursor.execute("SELECT usuario, email FROM usuarios WHERE id=?", (id,))
+   res = cursor.fetchone() #res es una variable, obtiene el resultado de la consulta                 
+   cerrarConexion() #cierra la conexion con la base de datos
+   return f"nombre: {res['usuario']}, email del usuario: {res['email']}"
+
+#ruta para cambiar el email del usuario
+@app.route("/cambiar/<string:usuario>/<string:nuevo_email>")
+def testUpdate (usuario,nuevo_email):
+   abrirConexion()
+   cursor = conexion.cursor()
+   cursor.execute = ("SELECT email FROM usuarios WHERE usuarios=?", (usuario,))
+   res = cursor.fetchone()
+   db.commit()
+   cerrarConexion()
+ 
 
 
