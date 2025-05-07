@@ -116,6 +116,13 @@ def datos_plantilla(id):
    return render_template("datos.html", id=id, usuario=usuario, email=email, telefono=telefono, direccion=direccion)
 
 
- 
+ @app.route(/"lista/<int:id>")
+ def lista_usuarios(id):
+   abrirConexion()
+   cursor = db.cursor()
+   cursor.execute("SELECT usuario, id FROM usuarios")
+   res = cursor.fetchall()
+   cerrarConexion() 
+   return render_template("datos2.html", usuarios=res)
 
 
