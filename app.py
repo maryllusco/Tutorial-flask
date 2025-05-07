@@ -1,4 +1,4 @@
-from flask import Flask, url_for 
+from flask import Flask, url_for, render_template
 import sqlite3
 
 app = Flask(__name__)
@@ -96,15 +96,22 @@ def mostrar(id):
    cerrarConexion() #cierra la conexion con la base de datos
    return f"nombre: {res['usuario']}, email del usuario: {res['email']}"
 
-#ruta para cambiar el email del usuario
-@app.route("/cambiar/<string:usuario>/<string:nuevo_email>")
-def testUpdate (usuario,nuevo_email):
+
+@app.route("/mostrar-datos-plantillas/<int:id>")
+def datos_plantilla(id):
    abrirConexion()
-   cursor = conexion.cursor()
-   cursor.execute = ("SELECT email FROM usuarios WHERE usuarios=?", (usuario,))
+   cursor = db.cursor()
+   cursor.execute("SELECT id,usuario,email FROM usuarios WHERE id = ?;", (id,))
    res = cursor.fetchone()
-   db.commit()
    cerrarConexion()
+   usuario = None
+   email = None
+   if res != None:
+      usuario=res['usuario']
+      email=res['email']
+   return render_template("datos.html", id=id, usuario=usuario, email=email)
+
+
  
 
 
